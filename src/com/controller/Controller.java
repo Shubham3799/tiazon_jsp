@@ -382,6 +382,11 @@ public class Controller extends HttpServlet {
 		
 		if(page.equals("reset_password"))
 		{
+			long time=Long.parseLong(request.getParameter("time"));
+			long curr=new Date().getTime();
+			if(curr>time+120000)
+				response.sendRedirect("linkexpire.jsp");
+			else			
 			request.getRequestDispatcher("reset_password.jsp").forward(request, response);
 		}
 		
@@ -428,7 +433,13 @@ public class Controller extends HttpServlet {
 			
 			if(reg)
 			{
-				String link = "http://localhost/ecommerce/Controller?page=reset_password&email="+email;     
+				Date date=new Date();
+				long time=date.getTime();
+				
+				String link = "http://localhost:8080/ecommerce/Controller?page=reset_password&email="+email
+						+"&time="
+						+time;
+				     
 				  //bhagawat till here, you have fetch email and verified with the email 
 				 //from 
 				  //datbase and retrived password from the db.
