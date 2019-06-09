@@ -9,7 +9,7 @@
 <html>
 <head>
 <meta charset="ISO-8859-1">
-<title>Home</title>
+<title>Account</title>
 <link rel="stylesheet" href="css/bootstrap.min.css"> 
 <link rel="stylesheet" type="text/css" href="css/style.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"> 
@@ -42,28 +42,38 @@
 						<%}
 					  else
 					  {
-					  String usern=(String)session.getAttribute("username");%>
-			
-					<li><a href="Controller?page=logout" >Logout</a></li>
-					<li><a href="Controller?page=Account">My Account(<%=usern%>)</a></li>
-					<%} %>
+						  String usern=(String)session.getAttribute("username");
+						  ArrayList<String> alerts =(ArrayList<String>)session.getAttribute("alerts");%>
+						  
+				
+						<li><a href="Controller?page=logout" >Logout</a></li>
+						<li><a href="Controller?page=Account&uname=<%=usern%>">My Account(<%=usern%>)</a></li>
+						<li><a href="Controller?page=alerts">
+						<span class="fa-stack fa-1x has-badge" style="font-size:125%;" data-count="<%= alerts.size()%>">           
+                        <i class="fa fa-bell"></i>
+                         </span></a></li>
+						<%} %>
 		
 				<li><a href="Controller?page=showcart"><span class="fa fa-cart-plus"></span>(<%=x%>)</a></li>
 			</ul>
 		</nav>
 	</header>
 		
-	<h2 style="margin-left:36%;text-align: center;">Account Info</h2><br>
+	<h2 style="margin-left:38%;text-align: center; color:teal;">Account Settings</h2><br>
 	
 	<div class="tiazon-content">
  	<div class="container">
 	<div class ="row">
 	<div class="col-md-4 text-center">
+	 <form method="post" action="Controller" style="border:none; width:100%;">
+	 
 	 <img src="<%=ssn.getAttribute("image") %>" class="img-fluid" alt="Responsive image">
-	 <br><br>            	 	        	 
-	 		<label for="files" class="btn btn-secondary">Edit</label>
-            <input id="files" style="visibility:hidden;" type="file">	 	
-	
+	 <br><br>
+	        <input type="hidden" name="page" value="edit_image">            	 	        	 
+	 		<label for="files" class="btn btn-secondary">Edit</label>	 		
+            <input id="files" style="visibility:hidden;" type="file" >
+            <input type="submit" class="btn btn-secondary" value="Upload Pic">	 	
+	</form>
 	</div>
 	
 	<div class="col-md-8 ">
@@ -87,7 +97,7 @@
     <div class="p-2"><%= ssn.getAttribute("username")%></div>
     <div class="signup-group">
 	 			 
-	 		<button type="submit" name="edited" value="username" class="btn btn-secondary">Edit</button>
+	 		<p style="color:red;">Username can't be changed</p>
 
 	</div>
     </div>	 
