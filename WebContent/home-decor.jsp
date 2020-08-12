@@ -42,11 +42,17 @@
 						<%}
 					  else
 					  {
-					  String usern=(String)session.getAttribute("username");%>
-			
-					<li><a href="Controller?page=logout" >Logout</a></li>
-					<li><a href="Controller?page=Account&uname=<%=usern%>">My Account(<%=usern%>)</a></li>
-					<%} %>
+						  String usern=(String)session.getAttribute("username");
+						  ArrayList<String> alerts =(ArrayList<String>)session.getAttribute("alerts");%>
+						  
+				
+						<li><a href="Controller?page=logout" >Logout</a></li>
+						<li><a href="Controller?page=Account&uname=<%=usern%>">My Account(<%=usern%>)</a></li>
+						<li><a href="Controller?page=alerts">
+						<span class="fa-stack fa-1x has-badge" style="font-size:125%;" data-count="<%=alerts.size()%>">           
+                        <i class="fa fa-bell"></i>
+                         </span></a></li>
+						<%} %>
 		
 				<li><a href="Controller?page=showcart"><span class="fa fa-cart-plus"></span>(<%=x%>)</a></li>
 			</ul>
@@ -93,7 +99,7 @@
  				
  							
 		 					<div class="col-md-4">
-		 						<img alt="error" src="<%=p.getImage() %>" class="img-responsive" style="width:60%;" ><br>
+		 						<img alt="error" src="<%=p.getImage() %>" class="img-responsive" style="width:60%;height:50%; margin-left:21%" ><br>
 		 						<div class="text-center"><a style="color: black;"><%=p.getName() %></a></div>	
 		 						<p style="text-align: center;"> &#x20b9;  <%=p.getPrice() %></p>
 		 						<div class="text-center">  <a class="btn btn-primary" href="Controller?page=addtocart&action=home-decor&id=<%=p.getId()%>">Add to Cart</a> </div><br>

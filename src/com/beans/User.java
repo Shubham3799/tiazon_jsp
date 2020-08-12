@@ -11,6 +11,7 @@ public class User {
 	private String password;
 	private String address;
 	private String image;
+	private String status;
 	public int getId() {
 		return id;
 	}
@@ -53,6 +54,12 @@ public class User {
 	public void setImage(String image) {
 		this.image = image;
 	}
+	public String getStatus() {
+		return status;
+	}
+	public void setStatus(String status) {
+		this.status = status;
+	}
 	
 	public Object fetchadd(ArrayList<User> userList, String username) {
 		for(User u : userList) {
@@ -80,6 +87,13 @@ public class User {
 		for(User u : userList) {
 			if(u.getUsername().equals(username))
 				return u.getImage();
+		}
+		return "";
+	}
+	public Object fetchStatus(ArrayList<User> userList, String username) {
+		for(User u : userList) {
+			if(u.getUsername().equals(username))
+				return u.getStatus();
 		}
 		return "";
 	}

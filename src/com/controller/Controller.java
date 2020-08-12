@@ -1,5 +1,6 @@
 package com.controller;
 
+import java.io.File;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -7,6 +8,17 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Properties;
+import java.util.Date;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+
+
+import java.util.*;
+import org.apache.commons.io.output.*;
+import org.apache.commons.fileupload.*;
+import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.fileupload.disk.DiskFileItemFactory;
+import org.apache.commons.fileupload.servlet.ServletFileUpload;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
@@ -20,9 +32,9 @@ import javax.swing.JOptionPane;
 import javax.mail.*;
 import javax.mail.internet.*;
 
-
 import com.beans.Product;
 import com.beans.User;
+import com.beans.Notification;
 import com.model.DB;
 
 /**
@@ -34,7 +46,9 @@ public class Controller extends HttpServlet {
 	ArrayList<Product> list = new ArrayList<>();
 	static ArrayList<String> cartlist = new ArrayList<>();
 	ArrayList<User> userList = new ArrayList<>();
+	ArrayList<Notification> notifications=new ArrayList();
     HttpSession session;
+    private final String UPLOAD_DIRECTORY = "D:/uploads";	
     
     public Controller() {
         super();
@@ -44,9 +58,14 @@ public class Controller extends HttpServlet {
 	public void init(ServletConfig config) throws ServletException
 	{
 		super.init(config);
-				
-		ServletContext sc=getServletContext();
-		sc.setAttribute("Controller", this);
+		/*DB db=new DB();
+		try{
+		notifications=db.fetchNotifications();
+		}
+		catch(SQLException e){
+		 e.printStackTrace();}*/		
+		
+		
 		 
 	}
 
@@ -77,6 +96,7 @@ public class Controller extends HttpServlet {
 
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		String page = request.getParameter("page");
+		
 		if(page.equals("login")) {
 			request.getRequestDispatcher("login.jsp").forward(request, response);
 		}
@@ -133,6 +153,8 @@ public class Controller extends HttpServlet {
 			
 			DB db = new DB();
 			User user = new User();
+			//String status1=(String)user.fetchStatus(userList, username);
+		
 			boolean status = false;
 			try {
 				status = db.checkUser(username,password);
@@ -140,26 +162,72 @@ public class Controller extends HttpServlet {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
+			
+			
 			if(status) {
-				session = request.getSession();
-				session.setAttribute("session", session);
 				
 				try {
 					userList = db.fetchUser();
 				} catch (SQLException e) {
 					e.printStackTrace();
 				}
+				String status1=(String)user.fetchStatus(userList, username);
+				//System.out.println(status1);
+				if(status1.equals("block"))
+				{
+					request.setAttribute("msg", "Sorry account is disabled");
+					request.setAttribute("username", username);
+					request.getRequestDispatcher("login.jsp").forward(request, response);
+				}
+				else
+				{
+			      try{
+				 	 notifications=db.fetchNotifications();
+				 	}
+				 catch(SQLException e){
+					 e.printStackTrace();} 		
+				 System.out.println(notifications.size());
+			
+				ArrayList<String>alerts=new ArrayList<>();
+				for(Notification n:notifications)
+				{
+					//System.out.println(username);
+					//System.out.println(n.getUser());
+					Date date=new Date();
+					SimpleDateFormat format=new SimpleDateFormat("yyyy-MM-dd");
+					Date send=new Date();
+					try{
+					send=format.parse(n.getDate());
+					}
+					catch(ParseException e)
+					{
+						System.out.println("Unparsable");
+					}
+					long sent=send.getTime();
+					long curr=date.getTime();
+					if(username.equals(n.getUser()))
+						if(curr<sent+86400000)
+						 alerts.add(n.getMessage());
+				}
+				session = request.getSession();
+				session.setAttribute("session", session);		
 				session.setAttribute("address", user.fetchadd(userList,username));
 				session.setAttribute("email", user.fetchemail(userList,username));
 				session.setAttribute("name", user.fetchname(userList,username));
 				session.setAttribute("username", username);
+				session.setAttribute("alerts", alerts);
 				request.getRequestDispatcher("index.jsp").forward(request, response);
+				}
 			}else {
 				request.setAttribute("msg", "Invalid Crediantials");
 				request.setAttribute("username", username);
 				request.getRequestDispatcher("login.jsp").forward(request, response);
 			}
 			
+		}
+		if(page.equals("alerts"))
+		{
+			request.getRequestDispatcher("alerts.jsp").forward(request, response);
 		}
 		if(page.equals("Account"))
 		{
@@ -182,6 +250,35 @@ public class Controller extends HttpServlet {
 			session.setAttribute("username", username);
 			
 			request.getRequestDispatcher("account.jsp").forward(request, response);
+		}
+		
+		if(page.equals("edit_image"))	
+		{
+			
+		
+	            try {
+	                List<FileItem> multiparts = new ServletFileUpload(
+	                                         new DiskFileItemFactory()).parseRequest(request);
+	               
+	                for(FileItem item : multiparts){
+	                    if(!item.isFormField()){
+	                        String name = new File(item.getName()).getName();
+	                        item.write( new File(UPLOAD_DIRECTORY + File.separator + name));
+	                    }
+	                }
+	            
+	               //File uploaded successfully
+	               request.setAttribute("message", "File Uploaded Successfully");
+	            } 
+	            catch (Exception ex) {
+	            	ex.printStackTrace();
+	               request.setAttribute("message", "File Upload Failed due to " + ex);
+	            }          
+	          
+	        
+			
+			String username=(String)session.getAttribute("username");
+			response.sendRedirect("account.jsp");
 		}
 		
 		if(page.equals("edit"))
@@ -255,6 +352,7 @@ public class Controller extends HttpServlet {
 			catch (SQLException e) {
 				e.printStackTrace();
 			}
+			//System.out.println(user.fetchemail(userList,username));
 			session.setAttribute("address", user.fetchadd(userList,username));
 			session.setAttribute("email", user.fetchemail(userList,username));
 			session.setAttribute("name", user.fetchname(userList,username));
@@ -382,7 +480,13 @@ public class Controller extends HttpServlet {
 		
 		if(page.equals("reset_password"))
 		{
-			request.getRequestDispatcher("reset_password.jsp").forward(request, response);
+			long time=Long.parseLong(request.getParameter("time"));
+			long curr=new Date().getTime();
+			
+			if(curr>time+120000)
+				response.sendRedirect("linkexpire.jsp");
+			else			
+			    request.getRequestDispatcher("reset_password.jsp").forward(request, response);
 		}
 		
 		if(page.equals("updpass"))
@@ -428,7 +532,12 @@ public class Controller extends HttpServlet {
 			
 			if(reg)
 			{
-				String link = "http://localhost/ecommerce/Controller?page=reset_password&email="+email;     
+				Date date=new Date();
+				long time=date.getTime();
+				
+				String link = "http://localhost:8080/ecommerce/Controller?page=reset_password&email="+email
+						+"&time="
+						+time;
 				  //bhagawat till here, you have fetch email and verified with the email 
 				 //from 
 				  //datbase and retrived password from the db.
@@ -436,13 +545,13 @@ public class Controller extends HttpServlet {
 				String host="", user="", pass=""; 
 				host = "smtp.gmail.com"; user = "yoyosrkshubham@gmail.com"; 
 				//"email@removed" // email id to send the emails 
-				pass = "kalla1234!"; 
+				pass = "kalla"; 
 				String SSL_FACTORY = "javax.net.ssl.SSLSocketFactory"; 
 				String to = email;  
 				String from = "yoyosrkshubham@gmail.com";  
 				String subject = "Password Reset"; 
 				 String messageText = " Click <a href="+link+">Here</a> To" 
-				  +" Reset your Password. You must reset your password within 20 minutes."; 
+				  +" Reset your Password. You must reset your password within 2 minutes."; 
 				   String fileAttachment = ""; 
 				   boolean WasEmailSent ; 
 				  boolean sessionDebug = true; 
@@ -456,7 +565,7 @@ public class Controller extends HttpServlet {
 				  props.put("mail.smtp.socketFactory.class", SSL_FACTORY); 
 				  Session mailSession = Session.getDefaultInstance(props, new javax.mail.Authenticator() {
 					  protected PasswordAuthentication getPasswordAuthentication() {
-						  return new PasswordAuthentication("yoyosrkshubham@gmail.com","kalla1234!");
+						  return new PasswordAuthentication("yoyosrkshubham@gmail.com","kalla");
 						  }
 						  }); 
 				  mailSession.setDebug(sessionDebug); 

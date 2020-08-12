@@ -10,18 +10,21 @@
 <html>
 <head>
 <meta charset="ISO-8859-1">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>Home</title>
 <link rel="stylesheet" href="css/bootstrap.min.css">
 <link rel="stylesheet" href="glyphicons/glyphicons-halflings-regular.css"  />
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"> 
 <link rel="stylesheet" type="text/css" href="css/style.css">
 </head>
-<body>
+<body style="height:100%;" class="fixed-nav sticky-footer">
 
     <%!int x=0;
      %>
         
 	
+        	
 	    <header>
 		<h1> 
 			Tiazon
@@ -42,12 +45,17 @@
 						<li ><a href="Controller?page=login">Login</a></li>
 						<li ><a href="Controller?page=sign-up">Sign-up</a></li>
 						<%} 
-					  else
-						  {
-						  String usern=(String)session.getAttribute("username");%>
+					  {
+						  String usern=(String)session.getAttribute("username");
+						  ArrayList<String> alerts =(ArrayList<String>)session.getAttribute("alerts");%>
+						  
 				
 						<li><a href="Controller?page=logout" >Logout</a></li>
 						<li><a href="Controller?page=Account&uname=<%=usern%>">My Account(<%=usern%>)</a></li>
+						<li><a href="Controller?page=alerts">
+						<span class="fa-stack fa-1x has-badge" style="font-size:125%;" data-count="<%= alerts.size()%>">           
+                        <i class="fa fa-bell"></i>
+                         </span></a></li>
 						<%} %>
 		
 		
@@ -55,6 +63,7 @@
 			</ul>
 		</nav>
 		</header>
+		
     <div class="container">
 	
 	 
@@ -115,11 +124,13 @@
 	</div>
 		
 		
-    <footer style="position: fixed;bottom:0;margin-top:40px;width: 100%;">
-		<div class="footer bg-dark" style="margin-bottom:0"> &copy; 2019 Copyright:
+    <footer style="margin-top: 120px;"class="sticky-footer">
+        
+		<div class="footer bg-dark" > &copy; 2019 Copyright:
 	      <a href="Controller?page=index"> Tiazon.com</a>
+	    
 	    </div>
-	</footer>
-	
-</body>
-</html>		
+	</footer>   
+    </body>
+
+</html>

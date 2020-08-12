@@ -6,7 +6,10 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Date;
 
+
+import com.beans.Notification;
 import com.beans.Product;
 import com.beans.User;
 public class DB {
@@ -18,6 +21,7 @@ public class DB {
 	
 	ArrayList<Product> list = new ArrayList<>();
 	ArrayList<User> userList = new ArrayList<>();
+	ArrayList<Notification> notifList = new ArrayList<>();
 	
 	private Connection con;
 	private void dbConnect() {
@@ -161,7 +165,20 @@ public class DB {
         st.executeUpdate();
         dbClose();
 	}
-
+  
+	public void upadteStatus(String status,String username) throws SQLException
+	{
+		dbConnect();
+		String sql="Update user set status=? where username=?";
+		
+		PreparedStatement st = con.prepareStatement(sql);
+		
+		st.setString(1,status);
+		st.setString(2,username);
+        st.executeUpdate();
+        dbClose();
+	}
+	
 	public ArrayList<Product> fetch() throws SQLException {
 		dbConnect();
 		String sql = "Select * from product";
@@ -191,6 +208,34 @@ public class DB {
 		dbClose();
 		return list;
 	}
+	
+	public ArrayList<Notification> fetchNotifications() throws SQLException {
+		dbConnect();
+		String sql = "Select * from notifications";
+		PreparedStatement st = con.prepareStatement(sql);
+		ResultSet rs = st.executeQuery();
+		while(rs.next()) {
+			int id=rs.getInt("id");
+			String message= rs.getString("message");
+			String date= rs.getString("date");
+	 		String user= rs.getString("user");
+           // Date dte=new Date(date); 
+			
+			Notification n = new Notification();
+			n.setId(id);
+		    n.setMessage(message);
+		    n.setDate(date);
+		    n.setUser(user);
+		    
+			
+			notifList.add(n);
+			n=null;
+			
+		}
+		
+		dbClose();
+		return notifList;
+	}
 
 	public ArrayList<User> fetchUser() throws SQLException {
 		dbConnect();
@@ -206,6 +251,7 @@ public class DB {
 			int id = rs.getInt("id");
 			String password = rs.getString("password");
 			String image=rs.getString("image");
+			String status=rs.getString("status");
 			
 			User u = new User();
 			u.setAddress(address);
@@ -215,6 +261,7 @@ public class DB {
 			u.setUsername(user);
 			u.setPassword(password);
 			u.setImage(image);
+			u.setStatus(status);
 			userList.add(u);
 			u=null;
 				
@@ -258,6 +305,8 @@ public class DB {
 		dbClose();
 		return p;
 	}
+	
+	
 
 	public void updateProduct(Product p) throws SQLException {
 		dbConnect();
@@ -282,6 +331,21 @@ public class DB {
 		st.setString(3, p.getCategory());
 		st.setString(4, p.getFeatured());
 		st.setString(5, p.getImage());
+		
+		
+		st.executeUpdate();
+		dbClose();
+	}
+	
+	public void addNotification(Notification n) throws SQLException {
+		dbConnect();
+		String sql = "Insert into notifications(message,date,user) values(?,?,?)";
+		PreparedStatement st = con.prepareStatement(sql);
+		
+		st.setString(1, n.getMessage());
+		st.setString(2, (String)n.getDate());
+		st.setString(3, n.getUser());
+		
 		
 		
 		st.executeUpdate();
