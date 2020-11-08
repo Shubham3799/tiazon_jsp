@@ -543,12 +543,12 @@ public class Controller extends HttpServlet {
 				  //datbase and retrived password from the db.
 				    //-----------------------------------------------
 				String host="", user="", pass=""; 
-				host = "smtp.gmail.com"; user = "yoyosrkshubham@gmail.com"; 
+				host = "smtp.gmail.com"; user = "nrcx@senduvu.com"; 
 				//"email@removed" // email id to send the emails 
-				pass = "kalla"; 
+				pass = "123456789"; 
 				String SSL_FACTORY = "javax.net.ssl.SSLSocketFactory"; 
 				String to = email;  
-				String from = "yoyosrkshubham@gmail.com";  
+				String from = "nrcx@senduvu.com";  
 				String subject = "Password Reset"; 
 				 String messageText = " Click <a href="+link+">Here</a> To" 
 				  +" Reset your Password. You must reset your password within 2 minutes."; 
@@ -565,7 +565,7 @@ public class Controller extends HttpServlet {
 				  props.put("mail.smtp.socketFactory.class", SSL_FACTORY); 
 				  Session mailSession = Session.getDefaultInstance(props, new javax.mail.Authenticator() {
 					  protected PasswordAuthentication getPasswordAuthentication() {
-						  return new PasswordAuthentication("yoyosrkshubham@gmail.com","kalla");
+						  return new PasswordAuthentication("nrcx@senduvu.com","12345678");
 						  }
 						  }); 
 				  mailSession.setDebug(sessionDebug); 
